@@ -1,0 +1,28 @@
+{
+  "entryPoints": [
+    { 
+      "condition": "PRIMEIRA_VEZ_ITEM_TUTORIAL", 
+      "nodeId": 0 
+    }
+  ],
+  "defaultEntryPoint": 999,
+  "nodes": [
+    {
+      "id": 0,
+      "speakerName": "Voz Interior",
+      "text": "Este é um Fragmento de Luz. Colete-os para restaurar a sua memória.",
+      "choices": [
+        { 
+          "text": "Coletar Fragmento", 
+          "nextNodeId": -1,
+          "action": "MARCAR_ITEM_TUTORIAL_VISTO"
+        }
+      ]
+    },
+    {
+      "id": 999,
+      "speakerName": "s",
+      "text": ""
+    }
+  ]
+}

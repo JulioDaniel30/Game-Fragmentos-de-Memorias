@@ -197,6 +197,12 @@
                  "height":32,
                  "id":2,
                  "name":"fragmento de luz",
+                 "properties":[
+                        {
+                         "name":"dialogueFile",
+                         "type":"string",
+                         "value":"\/fragmentoDeLuz.json"
+                        }],
                  "rotation":0,
                  "type":"item",
                  "visible":true,

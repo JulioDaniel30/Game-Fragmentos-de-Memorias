@@ -12,6 +12,11 @@ import org.json.JSONObject;
 
 import com.JDStudio.Engine.Engine;
 import com.JDStudio.Engine.Components.InteractionZone;
+import com.JDStudio.Engine.Core.GameStateManager;
+import com.JDStudio.Engine.Dialogue.ActionManager;
+import com.JDStudio.Engine.Dialogue.ConditionManager;
+import com.JDStudio.Engine.Dialogue.Dialogue;
+import com.JDStudio.Engine.Dialogue.DialogueManager;
 import com.JDStudio.Engine.Events.EngineEvent;
 import com.JDStudio.Engine.Events.EventManager;
 import com.JDStudio.Engine.Events.InteractionEventData;
@@ -25,6 +30,7 @@ import com.JDStudio.Engine.Graphics.Lighting.Light;
 import com.JDStudio.Engine.Graphics.Lighting.LightingManager;
 import com.JDStudio.Engine.Graphics.Sprite.Sprite;
 import com.JDStudio.Engine.Graphics.Sprite.Spritesheet;
+import com.JDStudio.Engine.Graphics.UI.DialogueBox;
 import com.JDStudio.Engine.Graphics.UI.UISpriteKey;
 import com.JDStudio.Engine.Graphics.UI.UITheme;
 import com.JDStudio.Engine.Graphics.UI.Elements.TutorialBox;
@@ -58,6 +64,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	// Managers específicos deste estado
 	@SuppressWarnings("unused")
 	private UIManager uiManager;
+	private DialogueBox dialogueBox;
 	// Adicione aqui outros managers que você usa, como ProjectileManager,
 	// LightingManager, etc.
 	
@@ -74,43 +81,55 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	public PlayingState() {
 		super();
 
-		// --- ORDEM DE INICIALIZAÇÃO CORRETA ---
+		// --- ORDEM DE INICIALIZAÇÃO CORRIGIDA E SEGURA ---
 
-		// 1. Limpa o RenderManager de qualquer lixo de um estado anterior
+		// 1. Limpa os managers de estados anteriores.
 		RenderManager.getInstance().clear();
+		GameStateManager.getInstance().clearFlags();
+		EventManager.getInstance().reset();
 
-		// 2. Inicializa os managers
+		// 2. Inicializa os managers principais.
 		ThemeManager.getInstance().setTheme(UITheme.MEDIEVAL);
 		assets = new AssetManager();
 		uiManager = new UIManager();
-		// ... inicialize outros managers aqui ...
-
-		// 3. Carrega os recursos visuais e sonoros
+		
+		// 3. Carrega os recursos visuais e sonoros.
 		loadAssets();
 		
-		// 4. Carrega o mundo. Durante este processo, os métodos onObjectFound e
-		// onTileFound serão chamados, criando e registando os objetos e tiles.
+		// 4. Carrega o mundo. Este passo é CRÍTICO e irá criar o 'player'
+	    // através do método onObjectFound.
 		world = new World("/level1.json", this);
 		
-		EventManager.getInstance().trigger(EngineEvent.WORLD_LOADED, new WorldLoadedEventData(world,this.getGameObjects()));
+		// A partir deste ponto, a variável 'player' já não é nula.
 
-		// 5. Regista os sistemas de renderização que não são GameObjects (fundo,
-		// iluminação, etc.)
-		registerRenderSystems();
-
-		Engine.camera.applyProfile(Camera.PROFILE_GAMEPLAY, player);
-		// 6. Configura a UI e os eventos
+		// 5. Agora que o player existe, podemos configurar tudo o que depende dele.
 		setupUI();
+		setupDialogueConditions();
+		setupDialogueActions();
 		setupEventListeners();
+
+		// 6. Carrega os sistemas que podem depender da UI ou dos assets.
+	    // A tutorialBox já foi criada dentro de setupUI().
 		TutorialManager.getInstance().loadTutorials("/tutorials.json", this.tutorialBox);
+		
+		// 7. Configura a câmera para seguir o jogador.
+		Engine.camera.applyProfile(Camera.PROFILE_GAMEPLAY, player);
+
+		// 8. Regista os sistemas de renderização.
+		registerRenderSystems();
+		
+		// 9. Inicia o áudio e a iluminação.
 		Sound.loop("/music.wav");
 		Sound.setMusicVolume(0.01f);
 		LightingManager.getInstance().setAmbientColor(new Color(0, 0, 10, 80));
 		lightPlayer= new Light(player.getCenterX(), player.getCenterY(), 30, new Color(255, 255, 200, 50));
 		LightingManager.getInstance().addLight(lightPlayer);
-		EventManager.getInstance().trigger(GameEvent.GAME_STARTED, null);
 		
+		// 10. Dispara o evento de início de jogo para acionar os tutoriais iniciais.
+		EventManager.getInstance().trigger(GameEvent.GAME_STARTED, null);
 	}
+
+	
 
 	private void loadAssets() {
 
@@ -122,9 +141,11 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	}
 
 	private void setupUI() {
-		// Crie e adicione aqui os elementos da sua UI (ex: HUD de vida)
-		// uiManager.addElement(...);
-		
+
+		this.tutorialBox = new TutorialBox();
+		this.uiManager.addElement(this.tutorialBox);
+		createDialogueBox();
+		uiManager.addElement(dialogueBox);
 		this.healthHearts = new ArrayList<>();
 		int maxHearts = (int) Math.ceil(player.maxLife / 40.0); // Ex: 1 coração para cada 20 de vida
 
@@ -136,8 +157,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		}
 		
 		
-		this.tutorialBox = new TutorialBox();
-		this.uiManager.addElement(this.tutorialBox);
+		
 		
 		
 		uiManager.addElement(new UIImage(10, 30, assets.getSprite("fragmento_de_luz")));
@@ -153,6 +173,17 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		
 		
 	}
+	
+	private void createDialogueBox() {
+		dialogueBox = new DialogueBox(10, 85, Engine.getWIDTH() - 20, 70);
+		dialogueBox.setFonts(new Font("Courier New", Font.BOLD, 12), new Font("Courier New", Font.PLAIN, 10));
+		dialogueBox.setColors(new Color(20, 20, 80, 230), Color.WHITE, Color.YELLOW, Color.CYAN);
+		dialogueBox.setPadding(5);
+		dialogueBox.setLineSpacing(12);
+		dialogueBox.setSectionSpacing(8);
+		dialogueBox.setTypewriterSpeed(2);
+		
+	}
 
 	private void setupEventListeners() {
 		// Inscreva-se aqui nos eventos do jogo
@@ -164,7 +195,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		EventManager.getInstance().subscribe(EngineEvent.TARGET_ENTERED_ZONE, (data)->{
 			InteractionEventData event = (InteractionEventData) data;
 		    // Verifica se a zona é de um tipo interativo manual (ex: "DIALOGUE")
-		    if (event.zone().type.equals(InteractionZone.TYPE_TRIGGER)) {
+		    if (event.zone().type.equals(InteractionZone.TYPE_TRIGGER) || event.zone().type.equals(InteractionZone.TYPE_DIALOGUE)) {
 		        // Apenas guarda a referência do objeto. Nenhuma ação é executada.
 		        this.interactableObjectInRange = event.zoneOwner();
 		        // Opcional: Mostrar uma dica na UI, como um "[E]" a piscar.
@@ -244,7 +275,35 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 		// Adicione aqui o registo de outros sistemas, como Partículas e Iluminação
 	}
+	
+	private void setupDialogueActions() {
+	    ActionManager manager = ActionManager.getInstance();
+	    GameStateManager stateManager = GameStateManager.getInstance();
+	    
+	    manager.registerAction("MARCAR_ITEM_TUTORIAL_VISTO", (player, item) -> {
+	        stateManager.setFlag("FLAG_JOGADOR_VIU_ITEM_TUTORIAL");
+	        
+	        // A lógica de coletar e destruir vive aqui agora.
+	        if (item instanceof FragmentOfLight) {
+	            countFragLight++;
+	            item.destroy();
+	        }
+	    });
+	}
 
+	
+	private void setupDialogueConditions() {
+	    ConditionManager manager = ConditionManager.getInstance();
+	    GameStateManager stateManager = GameStateManager.getInstance();
+	    
+	    // Regista a lógica para a condição "PRIMEIRA_VEZ_ITEM_TUTORIAL"
+	    manager.registerCondition("PRIMEIRA_VEZ_ITEM_TUTORIAL", (interactor) -> {
+	        // Esta condição retorna 'true' se a flag AINDA NÃO existir.
+	        return !stateManager.hasFlag("FLAG_JOGADOR_VIU_ITEM_TUTORIAL");
+	    });
+
+	    // Adicione aqui o registo de outras condições do seu jogo...
+	}
 	
 	public void handleInput() {
 		if (InputManager.isKeyJustPressed(KeyEvent.VK_ESCAPE)) {
@@ -256,19 +315,13 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		}
 		
 		if (InputManager.isActionJustPressed("INTERACT")) {
-
-			// Se a nossa variável de estado não for nula, o jogador está perto de algo E
-			// pressionou a tecla.
-			if (this.interactableObjectInRange != null) {
-
-				// Verificamos que tipo de objeto é para decidir o que fazer.
-
-				if (this.interactableObjectInRange instanceof FragmentOfLight) {
-					countFragLight++;
-					interactableObjectInRange.isDestroyed = true;
-				}
-				// else if (this.interactableObjectInRange instanceof Bau) { ... }
-			}
+		    if (this.interactableObjectInRange != null) {
+		        if (this.interactableObjectInRange instanceof FragmentOfLight) {
+		            FragmentOfLight fragment = (FragmentOfLight) this.interactableObjectInRange;
+		            // A responsabilidade é apenas iniciar o diálogo.
+		            fragment.startFilteredDialogue(player);
+		        }
+		    }
 		}
 		
 		if(InputManager.isKeyJustPressed(KeyEvent.VK_I)) {
@@ -279,19 +332,29 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	
 	@Override
 	public void tick() {
-		uiManager.tick();
-		super.tick(); // Atualiza todos os GameObjects registados
+		 // 1. Atualiza sempre os sistemas de UI que precisam de funcionar
+	    //    mesmo durante os diálogos (como a própria caixa de diálogo).
+	    uiManager.tick();
+	    TutorialManager.getInstance().update();
+	    dialogueBox.tick(); // Permite que a caixa de diálogo processe o seu próprio input.
 
-		TutorialManager.getInstance().update();
-		
-		handleInput();
+	    // 2. Se um diálogo estiver ativo, a lógica de jogabilidade é pausada.
+	    //    O 'return' impede que o resto do método seja executado.
+	    if (DialogueManager.getInstance().isActive()) {
+	        return;
+	    }
 
-		// Atualiza a câmara para seguir o jogador
-		if (player != null && world != null) {
-			Engine.camera.update(world); // A câmara já sabe quem seguir
-			lightPlayer.x = player.getCenterX();
-			lightPlayer.y = player.getCenterY();
-		}
+	    // 3. Se NÃO houver diálogo ativo, a jogabilidade normal continua.
+	    super.tick(); // Atualiza todos os GameObjects (Jogador, Inimigos, etc.).
+	    handleInput(); // Processa o input do jogador para interagir com o mundo.
+
+	    // 4. Atualiza a câmara e outros sistemas de jogabilidade.
+	    if (player != null && world != null) {
+	        Engine.camera.update(world); // A câmara já sabe quem seguir
+	        lightPlayer.x = player.getCenterX();
+	        lightPlayer.y = player.getCenterY();
+	    }
+	
 	}
 
 	@Override
@@ -359,7 +422,6 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 					
 				}};
 				
-				LightingManager.getInstance().addLight(new Light(gm.getCenterX(), gm.getCenterY(), 50, new Color(50,50,255,70)));
 				addGameObject(gm);
 				
 			}

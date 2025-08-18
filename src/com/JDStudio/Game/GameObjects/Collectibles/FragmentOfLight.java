@@ -1,5 +1,6 @@
 package com.JDStudio.Game.GameObjects.Collectibles;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.Collections;
 
@@ -7,11 +8,16 @@ import org.json.JSONObject;
 
 import com.JDStudio.Engine.Components.InteractionComponent;
 import com.JDStudio.Engine.Components.InteractionZone;
-import com.JDStudio.Engine.Object.GameObject;
+import com.JDStudio.Engine.Graphics.Lighting.Light;
+import com.JDStudio.Engine.Graphics.Lighting.LightingManager;
+import com.JDStudio.Engine.Object.DialogableGameObject;
 import com.JDStudio.Game.States.PlayingState;
 
-public class FragmentOfLight extends GameObject{
+public class FragmentOfLight extends DialogableGameObject{
 
+	
+	Light light;
+	
 	public FragmentOfLight(JSONObject properties) {
 		super(properties);
 	}
@@ -25,6 +31,10 @@ public class FragmentOfLight extends GameObject{
 
 	        // 3. Adiciona o componente ao GameObject
 	        this.addComponent(interaction);
+	        
+	        light = new Light(getCenterX(),getCenterY(), 50, new Color(50,50,255,70));
+	        
+	        LightingManager.getInstance().addLight(light);
 	}
 
 	@Override
@@ -39,6 +49,13 @@ public class FragmentOfLight extends GameObject{
 		// TODO Auto-generated method stub
 		super.render(g);
 		getComponent(InteractionComponent.class).render(g);
+	}
+	
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+		super.destroy();
+		LightingManager.getInstance().removeLight(light);
 	}
 	
 }
