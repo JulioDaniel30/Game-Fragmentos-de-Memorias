@@ -1,0 +1,17 @@
+{
+	"tutorials": [
+	    {
+	      "id": "MOVE_TUTORIAL",
+	      "text": "Use W, A, S, D para se mover.",
+	      "trigger": {
+	        "type": "EVENT",
+	        "eventName": "GAME_STARTED"
+	      },
+	      "completion": {
+	        "type": "KEY_PRESS",
+	        "actions": ["MOVE_UP", "MOVE_DOWN", "MOVE_LEFT", "MOVE_RIGHT"]
+	      },
+		  "ui": { "position": "BOTTOM_CENTER" }
+	    }
+	  ]
+}

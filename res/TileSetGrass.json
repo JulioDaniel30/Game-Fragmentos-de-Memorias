@@ -1,0 +1,12 @@
+{
+  "spritesheetPath": "/SpritesheetGrass.png",
+  "definitions": [
+	{
+		"type": "full_grid",
+	    "prefix": "grass_v_",
+	    "spriteWidth": 32,
+	    "spriteHeight": 32,
+	    "startIndex": 1
+  	}
+	]
+}
