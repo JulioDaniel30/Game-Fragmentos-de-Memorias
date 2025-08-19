@@ -7,6 +7,7 @@ import java.util.Collections;
 import org.json.JSONObject;
 
 import com.JDStudio.Engine.Components.InteractionComponent;
+import com.JDStudio.Engine.Components.InteractionPromptComponent;
 import com.JDStudio.Engine.Components.InteractionZone;
 import com.JDStudio.Engine.Graphics.Lighting.Light;
 import com.JDStudio.Engine.Graphics.Lighting.LightingManager;
@@ -35,6 +36,7 @@ public class FragmentOfLight extends DialogableGameObject{
 	        light = new Light(getCenterX(),getCenterY(), 50, new Color(50,50,255,70));
 	        
 	        LightingManager.getInstance().addLight(light);
+	        this.addComponent(new InteractionPromptComponent("[E] Coletar"));
 	}
 
 	@Override

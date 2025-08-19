@@ -11,16 +11,15 @@ import java.util.List;
 import org.json.JSONObject;
 
 import com.JDStudio.Engine.Engine;
+import com.JDStudio.Engine.Components.InteractionPromptComponent;
 import com.JDStudio.Engine.Components.InteractionZone;
 import com.JDStudio.Engine.Core.GameStateManager;
 import com.JDStudio.Engine.Dialogue.ActionManager;
 import com.JDStudio.Engine.Dialogue.ConditionManager;
-import com.JDStudio.Engine.Dialogue.Dialogue;
 import com.JDStudio.Engine.Dialogue.DialogueManager;
 import com.JDStudio.Engine.Events.EngineEvent;
 import com.JDStudio.Engine.Events.EventManager;
 import com.JDStudio.Engine.Events.InteractionEventData;
-import com.JDStudio.Engine.Events.WorldLoadedEventData;
 import com.JDStudio.Engine.Graphics.AssetManager;
 import com.JDStudio.Engine.Graphics.Layers.IRenderable;
 import com.JDStudio.Engine.Graphics.Layers.RenderLayer;
@@ -38,6 +37,7 @@ import com.JDStudio.Engine.Graphics.UI.Elements.UIImage;
 import com.JDStudio.Engine.Graphics.UI.Elements.UIText;
 import com.JDStudio.Engine.Graphics.UI.Managers.ThemeManager;
 import com.JDStudio.Engine.Graphics.UI.Managers.UIManager;
+import com.JDStudio.Engine.Graphics.WSUI.InteractionElements.UIInteractionPrompt;
 import com.JDStudio.Engine.Input.InputManager;
 import com.JDStudio.Engine.Object.GameObject;
 import com.JDStudio.Engine.Sound.Sound;
@@ -53,7 +53,6 @@ import com.JDStudio.Game.GameObjects.Characters.Player;
 import com.JDStudio.Game.GameObjects.Collectibles.FragmentOfLight;
 import com.JDStudio.Game.Tiles.GrassTile;
 
-@SuppressWarnings("static-access")
 public class PlayingState extends EnginePlayingState implements IMapLoaderListener {
 
 	// Referências estáticas para fácil acesso
@@ -62,14 +61,13 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	public static World world;
 
 	// Managers específicos deste estado
-	@SuppressWarnings("unused")
 	private UIManager uiManager;
 	private DialogueBox dialogueBox;
 	// Adicione aqui outros managers que você usa, como ProjectileManager,
 	// LightingManager, etc.
 	
 	private TutorialBox tutorialBox;
-	
+	private UIInteractionPrompt interactionPrompt;
 	Light lightPlayer;
 
 	private GameObject interactableObjectInRange = null;
@@ -171,7 +169,8 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 						Color.YELLOW, 
 						() -> String.valueOf(countFragLight)));
 		
-		
+		this.interactionPrompt = new UIInteractionPrompt();
+		this.uiManager.addElement(this.interactionPrompt);
 	}
 	
 	private void createDialogueBox() {
@@ -200,14 +199,20 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		        this.interactableObjectInRange = event.zoneOwner();
 		        // Opcional: Mostrar uma dica na UI, como um "[E]" a piscar.
 		    }
+		    InteractionPromptComponent promptComp = interactableObjectInRange.getComponent(InteractionPromptComponent.class);
+		    if (promptComp != null) {
+		        interactionPrompt.setTarget(interactableObjectInRange, promptComp.promptText);
+		    }
 		});
 		EventManager.getInstance().subscribe(EngineEvent.TARGET_EXITED_ZONE, (data)->{
 			InteractionEventData event = (InteractionEventData) data;
 		    // Se estamos a sair da zona do objeto guardado, limpamos a referência.
 		    if (event.zoneOwner() == this.interactableObjectInRange) {
 		        this.interactableObjectInRange = null;
+		        
 		        // Opcional: Esconder a dica da UI.
 		    }
+		    interactionPrompt.setTarget(null, "");
 		});
 		
 		
