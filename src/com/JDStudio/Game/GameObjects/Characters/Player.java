@@ -47,12 +47,12 @@ public class Player extends Character {
 		
 		Animator animator = getComponent(Animator.class);
 		if (animator == null) return;	
-		Spritesheet playerSheet = new Spritesheet("/playerRobot32x32.png"); // Use o caminho correto
+		Spritesheet playerSheet = new Spritesheet("/Spritesheets/playerRobot32x32.png"); // Use o caminho correto
 
         // Carrega TODAS as animações de uma vez a partir do JSON!
         // O 'true' no final diz para criar as versões "_left" automaticamente.
         Map<String, Animation> playerAnims = AnimationLoader.loadFromAsepriteJson(
-            "/playerRobot32x32.json", playerSheet, true);
+            "/Animations/playerRobot32x32.json", playerSheet, true);
 
         // Adiciona as animações carregadas ao Animator do jogador
         for (Map.Entry<String, Animation> entry : playerAnims.entrySet()) {

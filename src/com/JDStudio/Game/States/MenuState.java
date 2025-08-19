@@ -3,6 +3,7 @@ package com.JDStudio.Game.States;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 
 import com.JDStudio.Engine.Engine;
 import com.JDStudio.Engine.Graphics.UI.UISpriteKey;
@@ -10,6 +11,7 @@ import com.JDStudio.Engine.Graphics.UI.UITheme;
 import com.JDStudio.Engine.Graphics.UI.Elements.UIButton;
 import com.JDStudio.Engine.Graphics.UI.Elements.UIText;
 import com.JDStudio.Engine.Graphics.UI.Managers.ThemeManager;
+import com.JDStudio.Engine.Input.InputManager;
 import com.JDStudio.Engine.States.EngineMenuState;
 
 public class MenuState extends EngineMenuState {
@@ -43,6 +45,15 @@ public class MenuState extends EngineMenuState {
 				() -> System.exit(0) // Fecha a aplicação
 		);
 		uiManager.addElement(quitButton);
+	}
+	
+	@Override
+	public void tick() {
+		// TODO Auto-generated method stub
+		super.tick();
+		if (InputManager.isKeyJustPressed(KeyEvent.VK_ESCAPE)) {
+			System.exit(0);
+		}
 	}
 
 	@Override

@@ -15,14 +15,15 @@
         { 
           "text": "Coletar Fragmento", 
           "nextNodeId": -1,
-          "action": "MARCAR_ITEM_TUTORIAL_VISTO"
+          "action": "COLETAR_FRAGMENTO"
         }
       ]
     },
-    {
-      "id": 999,
-      "speakerName": "s",
-      "text": ""
-    }
+	{
+	      "id": 999,
+	      "speakerName": "",
+	      "text": ""
+	    }
+    
   ]
 }

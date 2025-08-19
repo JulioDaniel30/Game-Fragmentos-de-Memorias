@@ -29,6 +29,8 @@ import com.JDStudio.Engine.Graphics.Lighting.Light;
 import com.JDStudio.Engine.Graphics.Lighting.LightingManager;
 import com.JDStudio.Engine.Graphics.Sprite.Sprite;
 import com.JDStudio.Engine.Graphics.Sprite.Spritesheet;
+import com.JDStudio.Engine.Graphics.Sprite.Animations.Animation;
+import com.JDStudio.Engine.Graphics.Sprite.Animations.Animator;
 import com.JDStudio.Engine.Graphics.UI.DialogueBox;
 import com.JDStudio.Engine.Graphics.UI.UISpriteKey;
 import com.JDStudio.Engine.Graphics.UI.UITheme;
@@ -75,6 +77,9 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	public static int countFragLight = 0;
 	private List<UIImage> healthHearts;
 	
+	private enum InputMode { GAMEPLAY, UI }
+    private InputMode currentInputMode = InputMode.GAMEPLAY;
+	
 	
 	public PlayingState() {
 		super();
@@ -96,7 +101,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		
 		// 4. Carrega o mundo. Este passo é CRÍTICO e irá criar o 'player'
 	    // através do método onObjectFound.
-		world = new World("/level1.json", this);
+		world = new World("/Levels/level1.json", this);
 		
 		// A partir deste ponto, a variável 'player' já não é nula.
 
@@ -108,7 +113,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 		// 6. Carrega os sistemas que podem depender da UI ou dos assets.
 	    // A tutorialBox já foi criada dentro de setupUI().
-		TutorialManager.getInstance().loadTutorials("/tutorials.json", this.tutorialBox);
+		TutorialManager.getInstance().loadTutorials("/Dialogues/tutorials.json", this.tutorialBox);
 		
 		// 7. Configura a câmera para seguir o jogador.
 		Engine.camera.applyProfile(Camera.PROFILE_GAMEPLAY, player);
@@ -117,7 +122,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		registerRenderSystems();
 		
 		// 9. Inicia o áudio e a iluminação.
-		Sound.loop("/music.wav");
+		Sound.loop("/Sounds/music.wav");
 		Sound.setMusicVolume(0.01f);
 		LightingManager.getInstance().setAmbientColor(new Color(0, 0, 10, 80));
 		lightPlayer= new Light(player.getCenterX(), player.getCenterY(), 30, new Color(255, 255, 200, 50));
@@ -131,10 +136,15 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 	private void loadAssets() {
 
-		Spritesheet mainSpritesheet = new Spritesheet("/MainSpritesheet.png");
+		Spritesheet mainSpritesheet = new Spritesheet("/Spritesheets/MainSpritesheet.png");
 		
-		assets.loadSpritesFromSpritesheetJson("/TileSetGrass.json");
+		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetGrass.json");
 		assets.registerSprite("fragmento_de_luz", mainSpritesheet.getSprite(0, 0, 32, 32));
+		
+		Spritesheet fragluzSpritesheet = new Spritesheet("/Spritesheets/fragmentodeluz.png");
+		assets.registerSprite("frag_de_luz_1", fragluzSpritesheet.getSprite(0, 0, 32, 32));
+		assets.registerSprite("frag_de_luz_2", fragluzSpritesheet.getSprite(32, 0, 32, 32));
+		assets.registerSprite("frag_de_luz_3", fragluzSpritesheet.getSprite(64, 0, 32, 32));
 		
 	}
 
@@ -216,6 +226,18 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		});
 		
 		
+		 // **A LÓGICA DE CONTROLO DE MODO ESTÁ AQUI**
+        EventManager.getInstance().subscribe(EngineEvent.DIALOGUE_STARTED, (data) -> {
+            // Quando um diálogo começa, muda para o modo UI
+            this.currentInputMode = InputMode.UI;
+        });
+
+        EventManager.getInstance().subscribe(EngineEvent.DIALOGUE_ENDED, (data) -> {
+            // Quando o diálogo termina, volta para o modo Gameplay
+            this.currentInputMode = InputMode.GAMEPLAY;
+        });
+		
+		
 		
 		EventManager.getInstance().subscribe(GameEvent.PLAYER_TAKE_DAMAGE, (data) -> updateHealthUI());
 		EventManager.getInstance().subscribe(GameEvent.PLAYER_HEALED, (data) -> updateHealthUI());
@@ -261,19 +283,17 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 			
 			@Override
 			public void render(Graphics g) {
-				// TODO Auto-generated method stub
 				LightingManager.getInstance().render(g);
 			}
 			
 			@Override
 			public boolean isVisible() {
-				// TODO Auto-generated method stub
+
 				return true;
 			}
 			
 			@Override
 			public RenderLayer getRenderLayer() {
-				// TODO Auto-generated method stub
 				return StandardLayers.LIGHTING;
 			}
 		});
@@ -285,15 +305,21 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	    ActionManager manager = ActionManager.getInstance();
 	    GameStateManager stateManager = GameStateManager.getInstance();
 	    
-	    manager.registerAction("MARCAR_ITEM_TUTORIAL_VISTO", (player, item) -> {
+	    manager.registerAction("COLETAR_FRAGMENTO", (player, item) -> {
+	        // Esta ação é chamada tanto pelo diálogo como pela interação direta.
+	        
+	        // 1. Garante que a flag do tutorial seja definida (não faz mal chamar várias vezes)
 	        stateManager.setFlag("FLAG_JOGADOR_VIU_ITEM_TUTORIAL");
 	        
-	        // A lógica de coletar e destruir vive aqui agora.
-	        if (item instanceof FragmentOfLight) {
-	            countFragLight++;
-	            item.destroy();
+	        // 2. Executa a lógica de coleta
+	        if (item instanceof FragmentOfLight && !item.isDestroyed) {
+	            ((FragmentOfLight) item).coleted();
 	        }
 	    });
+	    
+	    
+	    
+	    
 	}
 
 	
@@ -320,14 +346,25 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		}
 		
 		if (InputManager.isActionJustPressed("INTERACT")) {
-		    if (this.interactableObjectInRange != null) {
-		        if (this.interactableObjectInRange instanceof FragmentOfLight) {
-		            FragmentOfLight fragment = (FragmentOfLight) this.interactableObjectInRange;
-		            // A responsabilidade é apenas iniciar o diálogo.
-		            fragment.startFilteredDialogue(player);
-		        }
-		    }
-		}
+	        if (this.interactableObjectInRange != null) {
+	            
+	            if (this.interactableObjectInRange instanceof FragmentOfLight) {
+	                FragmentOfLight fragment = (FragmentOfLight) this.interactableObjectInRange;
+	                
+	                boolean isFirstTime = ConditionManager.getInstance().checkCondition("PRIMEIRA_VEZ_ITEM_TUTORIAL", player);
+	                
+	                if (isFirstTime) {
+	                    // Se for a primeira vez, apenas inicia o diálogo.
+	                    // A action "COLETAR_FRAGMENTO" será chamada quando o jogador confirmar.
+	                    fragment.startFilteredDialogue(player);
+	                } else {
+	                    // Se NÃO for a primeira vez, chama a ação de coleta diretamente.
+	                    // O mesmo código da action é executado, garantindo consistência.
+	                    ActionManager.getInstance().executeAction("COLETAR_FRAGMENTO", player, fragment);
+	                }
+	            }
+	        }
+	    }
 		
 		if(InputManager.isKeyJustPressed(KeyEvent.VK_I)) {
 			player.takeDamage((int)player.maxLife/6);
@@ -348,11 +385,16 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	    if (DialogueManager.getInstance().isActive()) {
 	        return;
 	    }
+	    
+	    if (dialogueBox.inputConsumedThisFrame) {
+	        return;
+	    }
 
-	    // 3. Se NÃO houver diálogo ativo, a jogabilidade normal continua.
-	    super.tick(); // Atualiza todos os GameObjects (Jogador, Inimigos, etc.).
-	    handleInput(); // Processa o input do jogador para interagir com o mundo.
-
+	 // 2. A lógica de jogabilidade SÓ é executada se estivermos no modo GAMEPLAY
+        if (currentInputMode == InputMode.GAMEPLAY) {
+            super.tick(); // Atualiza todos os GameObjects (Jogador, Inimigos)
+            handleInput(); // Processa o input de interação com o mundo
+        }
 	    // 4. Atualiza a câmara e outros sistemas de jogabilidade.
 	    if (player != null && world != null) {
 	        Engine.camera.update(world); // A câmara já sabe quem seguir
@@ -421,11 +463,29 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 				
 				GameObject gm = new FragmentOfLight(properties) {@Override
 				public void initialize(JSONObject properties) {
-					// TODO Auto-generated method stub
 					super.initialize(properties);
-					sprite = assets.getSprite("fragmento_de_luz");
 					
-				}};
+					Sprite spr1 = assets.getSprite("frag_de_luz_1");
+					Sprite spr2 = assets.getSprite("frag_de_luz_3");
+					Sprite spr3 = assets.getSprite("frag_de_luz_2");
+					
+					Animation Anim = new Animation(10, true, spr1,spr2,spr3);
+
+					// 2. Adiciona a animação criada a um componente Animator
+					Animator animator = new Animator();
+					animator.addAnimation("idle", Anim);
+
+					// 3. Adiciona o componente Animator ao GameObject
+					this.addComponent(animator);
+					
+				}
+				@Override
+					public void tick() {
+						// TODO Auto-generated method stub
+						super.tick();
+						getComponent(Animator.class).play("idle");
+					}
+				};
 				
 				addGameObject(gm);
 				

@@ -28,7 +28,7 @@ public class FragmentOfLight extends DialogableGameObject{
 			InteractionComponent interaction = new InteractionComponent();
 
 	        // 2. Cria uma zona de interação circular com o TIPO "DIALOGUE" e o mesmo raio de antes
-	        interaction.addZone(new InteractionZone(this, InteractionZone.TYPE_TRIGGER, 30));
+	        interaction.addZone(new InteractionZone(this, InteractionZone.TYPE_TRIGGER, 50));
 
 	        // 3. Adiciona o componente ao GameObject
 	        this.addComponent(interaction);
@@ -44,6 +44,12 @@ public class FragmentOfLight extends DialogableGameObject{
 		// TODO Auto-generated method stub
 		super.tick();
 		this.getComponent(InteractionComponent.class).checkInteractions(Collections.singletonList(PlayingState.player));
+	}
+	
+	public void coleted() {
+		
+		destroy();
+		PlayingState.countFragLight+= 1;
 	}
 	
 	@Override
