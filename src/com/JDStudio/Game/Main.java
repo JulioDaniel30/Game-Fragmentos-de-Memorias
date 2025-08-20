@@ -2,6 +2,7 @@ package com.JDStudio.Game;
 
 import java.awt.event.KeyEvent;
 
+
 import com.JDStudio.Engine.Engine;
 import com.JDStudio.Engine.Graphics.ResolutionProfile;
 import com.JDStudio.Engine.Input.InputManager;
