@@ -16,6 +16,7 @@ import com.JDStudio.Engine.Utils.PropertiesReader;
 import com.JDStudio.Game.Enuns.GameEvent;
 
 public class Player extends Character {
+	
 
 	public double lastDx = 1;
 	public double lastDy = 0;
