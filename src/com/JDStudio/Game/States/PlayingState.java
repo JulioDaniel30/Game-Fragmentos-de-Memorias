@@ -136,12 +136,12 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 	private void loadAssets() {
 
-		Spritesheet mainSpritesheet = new Spritesheet("/Spritesheets/MainSpritesheet.png");
+		Spritesheet mainSpritesheet = new Spritesheet("Spritesheets/MainSpritesheet.png");
 		
 		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetGrass.json");
 		assets.registerSprite("fragmento_de_luz", mainSpritesheet.getSprite(0, 0, 32, 32));
 		
-		Spritesheet fragluzSpritesheet = new Spritesheet("/Spritesheets/fragmentodeluz.png");
+		Spritesheet fragluzSpritesheet = new Spritesheet("Spritesheets/fragmentodeluz.png");
 		assets.registerSprite("frag_de_luz_1", fragluzSpritesheet.getSprite(0, 0, 32, 32));
 		assets.registerSprite("frag_de_luz_2", fragluzSpritesheet.getSprite(32, 0, 32, 32));
 		assets.registerSprite("frag_de_luz_3", fragluzSpritesheet.getSprite(64, 0, 32, 32));
