@@ -1,0 +1,14 @@
+{
+	"spritesheetPath": "/Spritesheets/WallStoneSpritesheet.png",
+	"definitions": [
+		{
+			"type": "full_grid",
+			"prefix": "stone_v_",
+			"spriteWidth": 32,
+			"spriteHeight": 32,
+			"startIndex": 1,
+			"columns": 8,
+			"rows": 4
+		}
+	]
+}

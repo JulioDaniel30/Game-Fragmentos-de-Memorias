@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>GameTopDown</name>
+	<name>Game_Project_Template</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -14,26 +14,14 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>.._.._.._Users_marcu_git_repository_com.JDStudio.Engine_res</name>
-			<type>2</type>
-			<location>C:/Users/marcu/git/repository/com.JDStudio.Engine/res</location>
-		</link>
-		<link>
-			<name>.._.._.._Users_marcu_git_repository_com.JDStudio.Engine_src</name>
-			<type>2</type>
-			<location>C:/Users/marcu/git/repository/com.JDStudio.Engine/src</location>
-		</link>
-	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1755651252005</id>
+			<id>1755648625817</id>
 			<name></name>
 			<type>30</type>
 			<matcher>
 				<id>org.eclipse.core.resources.regexFilterMatcher</id>
-				<arguments>node_modules|.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
+				<arguments>node_modules|\.git|__CREATED_BY_JAVA_LANGUAGE_SERVER__</arguments>
 			</matcher>
 		</filter>
 	</filteredResources>
