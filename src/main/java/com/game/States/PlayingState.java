@@ -101,7 +101,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		// 4. Carrega o mundo. Este passo é CRÍTICO e irá criar o 'player'
 	    // através do método onObjectFound.
 		world = new World("/Levels/level1.json", this);
-		
+		EventManager.getInstance().trigger(EngineEvent.WORLD_LOADED, new WorldLoadedEventData(world,gameObjects));
 		// A partir deste ponto, a variável 'player' já não é nula.
 
 		// 5. Agora que o player existe, podemos configurar tudo o que depende dele.
@@ -433,16 +433,14 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 		case "parede":
 			
-			//String spriteKeyS = "stone_v_" + tileId;
-		   // Sprite tileSpriteS = assets.getSprite(spriteKeyS);
-
-		    // Se o sprite para um ID específico não for encontrado, usa um padrão.
-		    //if (tileSpriteS == null) {
-		    //    System.err.println("Aviso: Sprite para o tile de chão com id '" + tileId + "' não encontrado. A usar o padrão.");
-		    //    tileSpriteS = assets.getSprite("stone_v_1");
-		    //}
-			
-			createdTile = new WallTile(x, y, assets.getSprite("stone_v_1"));
+			String spriteKeyS = "stone_v_" + tileId;
+			Sprite tileSpriteS = assets.getSprite(spriteKeyS);
+			// Se o sprite para um ID específico não for encontrado, usa um padrão.
+			if (tileSpriteS == null) {
+				System.err.println("Aviso: Sprite para o tile de parede com id '" + tileId + "' não encontrado. A usar o padrão.");
+				tileSpriteS = assets.getSprite("stone_v_221");
+			}
+			createdTile = new WallTile(x, y, tileSpriteS);
 			break;
 
 		default:

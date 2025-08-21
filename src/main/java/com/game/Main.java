@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import com.game.States.MenuState;
 import com.jdstudio.engine.Engine;
 import com.jdstudio.engine.Graphics.ResolutionProfile;
-import com.jdstudio.engine.Graphics.StandardResolutions;
 import com.jdstudio.engine.Input.InputManager;
 
 

@@ -41,10 +41,7 @@ public class Player extends Character {
 
 		// Configurações (podem ser movidas para o Tiled depois)
 		//setCollisionMask(2, 2, 12, 14);
-		setMaskWidth(9);
-		setMaskHeight(15);
-		setMaskY(1);
-		setMaskX(3);
+		setCollisionMask(2, 3, 28, 27);
 		this.maxLife = 120;
 		this.life = this.maxLife;
 		setupAnimations(properties);
