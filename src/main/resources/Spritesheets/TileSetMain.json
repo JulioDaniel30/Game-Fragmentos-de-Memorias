@@ -1,0 +1,39 @@
+{
+    "spritesheetPath": "/Spritesheets/MainSpritesheet.png",
+    "definitions": [
+        {
+            "type": "manual",
+            "sprites": [
+                {
+                    "key": "fragmento_de_luz",
+                    "x": 0,
+                    "y": 0,
+                    "w": 32,
+                    "h": 32
+                }
+            ]
+        },
+        {
+            "type": "grid",
+			"prefix": "stone_v_",
+			"spriteWidth": 32,
+			"spriteHeight": 32,
+			"startIndex": 105,
+			"numCols": 8,
+			"numRows": 3,
+            "startX": 0,
+            "startY": 416
+        },
+        {
+            "type": "grid",
+            "prefix": "grass_v_",
+            "spriteWidth": 32,
+            "spriteHeight": 32,
+            "startIndex": 41,
+            "numCols": 8,
+            "numRows": 8,
+            "startX": 0,
+            "startY": 160
+        }
+    ]
+}

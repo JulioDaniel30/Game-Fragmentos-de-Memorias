@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import com.game.Enuns.GameEvent;
 import com.game.GameObjects.Characters.Player;
 import com.game.GameObjects.Collectibles.FragmentOfLight;
+import com.game.GameObjects.Interactables.Door;
 import com.jdstudio.engine.Engine;
 import com.jdstudio.engine.Components.InteractionPromptComponent;
 import com.jdstudio.engine.Components.InteractionZone;
@@ -47,11 +48,13 @@ import com.jdstudio.engine.World.IMapLoaderListener;
 import com.jdstudio.engine.World.Tile;
 import com.jdstudio.engine.World.World;
 import com.game.Tiles.*;
-import com.jdstudio.engine.Graphics.*;
 import com.jdstudio.engine.Graphics.UI.*;
 import com.jdstudio.engine.Graphics.UI.Elements.*;
 import com.jdstudio.engine.Tutorial.*;
 import com.jdstudio.engine.Utils.PropertiesReader;
+
+
+import com.jdstudio.engine.Object.PreBuildObjcts.EngineDoor;
 
 
 public class PlayingState extends EnginePlayingState implements IMapLoaderListener {
@@ -105,6 +108,14 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		// A partir deste ponto, a variável 'player' já não é nula.
 
 		// 5. Agora que o player existe, podemos configurar tudo o que depende dele.
+
+		for (GameObject go : this.gameObjects) {
+
+			if (go instanceof Door) {
+				((Door) go).setGameObjects(this.gameObjects);
+			}
+		}
+
 		setupUI();
 		setupDialogueConditions();
 		setupDialogueActions();
@@ -136,16 +147,20 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	private void loadAssets() {
 
 		Spritesheet mainSpritesheet = new Spritesheet("/Spritesheets/MainSpritesheet.png");
-		
-		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetGrass.json");
-		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetStone.json");
-		assets.registerSprite("fragmento_de_luz", mainSpritesheet.getSprite(0, 0, 32, 32));
+		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetMain.json");
+		assets.registerSprite("grass_v_1", mainSpritesheet.getSprite(0, 160, 32, 32));
+
+		//ssets.registerSprite("fragmento_de_luz", mainSpritesheet.getSprite(0, 0, 32, 32));
 		
 		Spritesheet fragluzSpritesheet = new Spritesheet("/Spritesheets/fragmentodeluz.png");
 		assets.registerSprite("frag_de_luz_1", fragluzSpritesheet.getSprite(0, 0, 32, 32));
 		assets.registerSprite("frag_de_luz_2", fragluzSpritesheet.getSprite(32, 0, 32, 32));
 		assets.registerSprite("frag_de_luz_3", fragluzSpritesheet.getSprite(64, 0, 32, 32));
-		
+
+		Spritesheet doorSpritesheet = new Spritesheet("/Spritesheets/doorSpritesheet.png");
+		assets.registerSprite("door_frame_1", doorSpritesheet.getSprite(0, 0, 32, 32));
+		assets.registerSprite("door_frame_2", doorSpritesheet.getSprite(32, 0, 32, 32));
+		assets.registerSprite("door_frame_3", doorSpritesheet.getSprite(64, 0, 32, 32));		
 	}
 
 	private void setupUI() {
@@ -226,7 +241,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		});
 		
 		
-		 // **A LÓGICA DE CONTROLO DE MODO ESTÁ AQUI**
+		 // **A LÓGICA DE CONTROLE DE MODO ESTÁ AQUI**
         EventManager.getInstance().subscribe(EngineEvent.DIALOGUE_STARTED, (data) -> {
             // Quando um diálogo começa, muda para o modo UI
             this.currentInputMode = InputMode.UI;
@@ -362,9 +377,16 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	                    // O mesmo código da action é executado, garantindo consistência.
 	                    ActionManager.getInstance().executeAction("COLETAR_FRAGMENTO", player, fragment);
 	                }
-	            }
+	            }else if (this.interactableObjectInRange instanceof Door) {
+	                // Se for uma porta, inicia o diálogo de abertura
+	                Door door = (Door) this.interactableObjectInRange;
+					System.out.println("interagiu com a porta");
+					door.interact();
+	            } 
+					
+				}
 	        }
-	    }
+	    
 		
 		if(InputManager.isKeyJustPressed(KeyEvent.VK_I)) {
 			player.takeDamage((int)player.maxLife/6);
@@ -490,7 +512,6 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 				}
 				@Override
 					public void tick() {
-						// TODO Auto-generated method stub
 						super.tick();
 						getComponent(Animator.class).play("idle");
 					}
@@ -499,6 +520,9 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 				addGameObject(gm);
 				
 			}
+		}else if("door".equals(type)) {
+			GameObject door = new Door(properties, player);
+			addGameObject(door);
 		}
 	}
 

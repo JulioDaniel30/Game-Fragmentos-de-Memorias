@@ -72,7 +72,6 @@ public class Player extends Character {
 	
 	@Override
 	public void onCollision(GameObject other) {
-		// TODO Auto-generated method stub
 		super.onCollision(other);
 	}
 	
@@ -85,7 +84,6 @@ public class Player extends Character {
 
 	@Override
 	public void takeDamage(double amount) {
-		// TODO Auto-generated method stub
 		super.takeDamage(amount);
 		EventManager.getInstance().trigger(GameEvent.PLAYER_TAKE_DAMAGE, amount);
 	}

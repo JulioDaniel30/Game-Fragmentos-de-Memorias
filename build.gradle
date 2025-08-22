@@ -3,13 +3,24 @@ plugins{
     id 'application'
 }
 
+//list a gradlew commands
+/*
+    ./gradlew build  // build the project
+    ./gradlew build --refresh-dependencies // build the project with refreshed dependencies/
+    ./gradlew run // run the project
+    ./gradlew clean // clean the project
+    ./gradlew dependencies --refresh-dependencies // refresh dependencies
+*/
+
 repositories {
     mavenCentral()
     mavenLocal()
 }
 
 dependencies {
-    implementation 'com.jdstudio.engine:Engine:0.1.0'
+    
+    //implementation 'com.jdstudio.engine:Engine:0.1.0'
+    implementation 'com.jdstudio.engine:Engine:0.1.0-SNAPSHOT'
     implementation 'org.json:json:20240303'
     implementation 'org.slf4j:slf4j-api:2.0.9'
     implementation 'org.slf4j:slf4j-simple:2.0.9'
@@ -29,4 +40,9 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }

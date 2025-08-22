@@ -1,16 +1,30 @@
 package com.game.GameObjects.Interactables;
 
+
+import java.util.List;
+
 import org.json.JSONObject;
 
 import com.game.States.PlayingState;
+import com.jdstudio.engine.Components.InteractionPromptComponent;
 import com.jdstudio.engine.Graphics.Sprite.Animations.Animation;
 import com.jdstudio.engine.Graphics.Sprite.Animations.Animator;
+import com.jdstudio.engine.Object.GameObject;
 import com.jdstudio.engine.Object.PreBuildObjcts.EngineDoor;
 
 public class Door extends EngineDoor {
 
-    public Door(JSONObject properties) {
-        super(properties);
+    public Door(JSONObject properties, GameObject target) {
+        super(properties, target);
+        setCollisionMask(0, 22, 32, 9);
+        this.addComponent(new InteractionPromptComponent("Pressione 'E' para interagir com a porta"));
+    }
+
+
+    @Override
+    public void tick() {
+        super.tick();
+        //this.getComponent(InteractionComponent.class).checkInteractions(Collections.singletonList(PlayingState.player));
     }
 
     /**
@@ -37,4 +51,18 @@ public class Door extends EngineDoor {
         animator.addAnimation("opening", opening);
         animator.addAnimation("closing", closing);
     }
+
+    @Override
+    public void interact() {
+        super.interact();
+        // Aqui você pode adicionar lógica específica quando a porta é interagida
+        System.out.println("Interagindo com a porta: " + this.name);
+    }
+
+    @Override
+    public void setGameObjects(List<GameObject> gameObjects) {
+        // TODO Auto-generated method stub
+        super.setGameObjects(gameObjects);
+    }
+
 }

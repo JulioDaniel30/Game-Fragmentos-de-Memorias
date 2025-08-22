@@ -41,7 +41,6 @@ public class FragmentOfLight extends DialogableGameObject{
 
 	@Override
 	public void tick() {
-		// TODO Auto-generated method stub
 		super.tick();
 		this.getComponent(InteractionComponent.class).checkInteractions(Collections.singletonList(PlayingState.player));
 	}
@@ -54,14 +53,12 @@ public class FragmentOfLight extends DialogableGameObject{
 	
 	@Override
 	public void render(Graphics g) {
-		// TODO Auto-generated method stub
 		super.render(g);
 		getComponent(InteractionComponent.class).render(g);
 	}
 	
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
 		super.destroy();
 		LightingManager.getInstance().removeLight(light);
 	}
