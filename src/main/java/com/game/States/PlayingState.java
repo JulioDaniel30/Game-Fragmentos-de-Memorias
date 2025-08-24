@@ -14,6 +14,7 @@ import com.game.Enuns.GameEvent;
 import com.game.GameObjects.Characters.Player;
 import com.game.GameObjects.Collectibles.FragmentOfLight;
 import com.game.GameObjects.Interactables.Door;
+import com.game.GameObjects.Interactables.Terminal;
 import com.jdstudio.engine.Engine;
 import com.jdstudio.engine.Components.InteractionPromptComponent;
 import com.jdstudio.engine.Components.InteractionZone;
@@ -69,6 +70,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	private DialogueBox dialogueBox;
 	// Adicione aqui outros managers que você usa, como ProjectileManager,
 	// LightingManager, etc.
+
 	
 	private TutorialBox tutorialBox;
 	private UIInteractionPrompt interactionPrompt;
@@ -92,6 +94,9 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		RenderManager.getInstance().clear();
 		GameStateManager.getInstance().clearFlags();
 		EventManager.getInstance().reset();
+		DialogueManager.getInstance().reset();
+		DialogueManager.getInstance().setDialogueCooldown(2000);
+
 
 		// 2. Inicializa os managers principais.
 		ThemeManager.getInstance().setTheme(UITheme.MEDIEVAL);
@@ -109,12 +114,15 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 		// 5. Agora que o player existe, podemos configurar tudo o que depende dele.
 
+
 		for (GameObject go : this.gameObjects) {
 
 			if (go instanceof Door) {
 				((Door) go).setGameObjects(this.gameObjects);
 			}
 		}
+		
+
 
 		setupUI();
 		setupDialogueConditions();
@@ -160,7 +168,8 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		Spritesheet doorSpritesheet = new Spritesheet("/Spritesheets/doorSpritesheet.png");
 		assets.registerSprite("door_frame_1", doorSpritesheet.getSprite(0, 0, 32, 32));
 		assets.registerSprite("door_frame_2", doorSpritesheet.getSprite(32, 0, 32, 32));
-		assets.registerSprite("door_frame_3", doorSpritesheet.getSprite(64, 0, 32, 32));		
+		assets.registerSprite("door_frame_3", doorSpritesheet.getSprite(64, 0, 32, 32));
+			
 	}
 
 	private void setupUI() {
@@ -170,7 +179,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		createDialogueBox();
 		uiManager.addElement(dialogueBox);
 		this.healthHearts = new ArrayList<>();
-		int maxHearts = (int) Math.ceil(player.maxLife / 40.0); // Ex: 1 coração para cada 20 de vida
+		int maxHearts = (int) Math.ceil(player.maxLife / 40.0); // Ex: 1 coração para cada 40 de vida
 
 		//int maxHearts = 3;
 		for (int i = 0; i < maxHearts; i++) {
@@ -383,6 +392,17 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 					System.out.println("interagiu com a porta");
 					door.interact();
 	            } 
+				else if(this.interactableObjectInRange instanceof Terminal){
+					
+					
+					//start dialog
+					Terminal terminal = (Terminal) this.interactableObjectInRange;
+					terminal.interact();
+					terminal.startFilteredDialogue(player);
+					//DialogueManager.getInstance().startDialogue(terminal.getDialogue(), terminal, player);
+					
+				}
+
 					
 				}
 	        }
@@ -524,6 +544,12 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 			GameObject door = new Door(properties, player);
 			addGameObject(door);
 		}
+	}
+
+	//method add gameObjetc to the gameObjects list
+	public static void addGameObjectToList(GameObject gameObject, JSONObject properties) {
+		gameObject.initialize(properties);
+		gameObjects.add(gameObject);
 	}
 
 	@Override

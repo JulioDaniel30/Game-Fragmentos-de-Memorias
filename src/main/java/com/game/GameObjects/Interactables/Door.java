@@ -14,17 +14,31 @@ import com.jdstudio.engine.Object.PreBuildObjcts.EngineDoor;
 
 public class Door extends EngineDoor {
 
+    Terminal terminal;
+
     public Door(JSONObject properties, GameObject target) {
         super(properties, target);
         setCollisionMask(0, 22, 32, 9);
         this.addComponent(new InteractionPromptComponent("Pressione 'E' para interagir com a porta"));
+        terminal = new Terminal(properties);
+        terminal.setX(x- width - 10);
+        //create new properties for the terminal
+        JSONObject terminalProperties = new JSONObject();
+        terminalProperties.put("x", terminal.getX());
+        terminalProperties.put("y", terminal.getY());
+        terminalProperties.put("width", terminal.getWidth());
+        terminalProperties.put("height", terminal.getHeight());
+        terminalProperties.put("name", "Terminal");
+        terminalProperties.put("dialogueFile","/Dialogues/terminal.json");
+
+        PlayingState.addGameObjectToList(terminal, terminalProperties);
     }
 
 
     @Override
     public void tick() {
         super.tick();
-        //this.getComponent(InteractionComponent.class).checkInteractions(Collections.singletonList(PlayingState.player));
+        
     }
 
     /**
@@ -50,13 +64,6 @@ public class Door extends EngineDoor {
         animator.addAnimation("idleOpen", idleOpen);
         animator.addAnimation("opening", opening);
         animator.addAnimation("closing", closing);
-    }
-
-    @Override
-    public void interact() {
-        super.interact();
-        // Aqui você pode adicionar lógica específica quando a porta é interagida
-        System.out.println("Interagindo com a porta: " + this.name);
     }
 
     @Override

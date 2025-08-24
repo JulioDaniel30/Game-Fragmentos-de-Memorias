@@ -1,0 +1,14 @@
+{
+    
+    "defaultEntryPoint": 0,
+    "nodes": [
+        {
+        "id": 0,
+        "speakerName": "Terminal", "text": "As sentinelas do norte caíram...",
+      "choices": [ { "text": "...", "nextNodeId": 1 } ]
+        } ,
+        { "id": 1,"speakerName": "Terminal", "text": "Precisamos de ti na linha da frente.",
+        "choices": [ { "text": "...", "nextNodeId": -1 } ]
+         }
+    ]
+}
