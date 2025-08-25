@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import com.game.Loaders.AssetsLoader;
 import com.game.Enuns.GameEvent;
 import com.game.GameObjects.Characters.Player;
 import com.game.GameObjects.Collectibles.FragmentOfLight;
@@ -34,7 +35,6 @@ import com.jdstudio.engine.Graphics.Layers.StandardLayers;
 import com.jdstudio.engine.Graphics.Lighting.Light;
 import com.jdstudio.engine.Graphics.Lighting.LightingManager;
 import com.jdstudio.engine.Graphics.Sprite.Sprite;
-import com.jdstudio.engine.Graphics.Sprite.Spritesheet;
 import com.jdstudio.engine.Graphics.Sprite.Animations.Animation;
 import com.jdstudio.engine.Graphics.Sprite.Animations.Animator;
 import com.jdstudio.engine.Graphics.UI.Managers.ThemeManager;
@@ -43,6 +43,7 @@ import com.jdstudio.engine.Graphics.WSUI.InteractionElements.UIInteractionPrompt
 import com.jdstudio.engine.Input.InputManager;
 import com.jdstudio.engine.Object.GameObject;
 import com.jdstudio.engine.Sound.Sound;
+import com.jdstudio.engine.Sound.Sound.SoundChannel;
 import com.jdstudio.engine.States.EnginePlayingState;
 import com.jdstudio.engine.World.Camera;
 import com.jdstudio.engine.World.IMapLoaderListener;
@@ -53,10 +54,6 @@ import com.jdstudio.engine.Graphics.UI.*;
 import com.jdstudio.engine.Graphics.UI.Elements.*;
 import com.jdstudio.engine.Tutorial.*;
 import com.jdstudio.engine.Utils.PropertiesReader;
-
-
-import com.jdstudio.engine.Object.PreBuildObjcts.EngineDoor;
-
 
 public class PlayingState extends EnginePlayingState implements IMapLoaderListener {
 
@@ -100,8 +97,8 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 		// 2. Inicializa os managers principais.
 		ThemeManager.getInstance().setTheme(UITheme.MEDIEVAL);
-		assets = new AssetManager();
 		uiManager = new UIManager();
+		assets = new AssetsLoader().loadAssets();// ja inicia com os assets carregados em AssetsLoader
 		
 		// 3. Carrega os recursos visuais e sonoros.
 		loadAssets();
@@ -111,8 +108,6 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		world = new World("/Levels/level1.json", this);
 		EventManager.getInstance().trigger(EngineEvent.WORLD_LOADED, new WorldLoadedEventData(world,gameObjects));
 		// A partir deste ponto, a variável 'player' já não é nula.
-
-		// 5. Agora que o player existe, podemos configurar tudo o que depende dele.
 
 
 		for (GameObject go : this.gameObjects) {
@@ -141,7 +136,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		
 		// 9. Inicia o áudio e a iluminação.
 		Sound.loop("/Sounds/music.wav");
-		Sound.setMusicVolume(0.01f);
+		Sound.setChannelVolume(SoundChannel.MUSIC, 0.5f);
 		LightingManager.getInstance().setAmbientColor(new Color(0, 0, 0, 40));
 		lightPlayer= new Light(player.getCenterX(), player.getCenterY(), 30, new Color(255, 255, 200, 50));
 		LightingManager.getInstance().addLight(lightPlayer);
@@ -152,25 +147,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 
 	
 
-	private void loadAssets() {
-
-		Spritesheet mainSpritesheet = new Spritesheet("/Spritesheets/MainSpritesheet.png");
-		assets.loadSpritesFromSpritesheetJson("/Spritesheets/TileSetMain.json");
-		assets.registerSprite("grass_v_1", mainSpritesheet.getSprite(0, 160, 32, 32));
-
-		//ssets.registerSprite("fragmento_de_luz", mainSpritesheet.getSprite(0, 0, 32, 32));
-		
-		Spritesheet fragluzSpritesheet = new Spritesheet("/Spritesheets/fragmentodeluz.png");
-		assets.registerSprite("frag_de_luz_1", fragluzSpritesheet.getSprite(0, 0, 32, 32));
-		assets.registerSprite("frag_de_luz_2", fragluzSpritesheet.getSprite(32, 0, 32, 32));
-		assets.registerSprite("frag_de_luz_3", fragluzSpritesheet.getSprite(64, 0, 32, 32));
-
-		Spritesheet doorSpritesheet = new Spritesheet("/Spritesheets/doorSpritesheet.png");
-		assets.registerSprite("door_frame_1", doorSpritesheet.getSprite(0, 0, 32, 32));
-		assets.registerSprite("door_frame_2", doorSpritesheet.getSprite(32, 0, 32, 32));
-		assets.registerSprite("door_frame_3", doorSpritesheet.getSprite(64, 0, 32, 32));
-			
-	}
+	private void loadAssets() {}
 
 	private void setupUI() {
 
@@ -212,7 +189,7 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		dialogueBox.setFonts(new Font("Courier New", Font.BOLD, 12), new Font("Courier New", Font.PLAIN, 10));
 		dialogueBox.setColors(new Color(20, 20, 80, 230), Color.WHITE, Color.YELLOW, Color.CYAN);
 		dialogueBox.setPadding(5);
-		dialogueBox.setLineSpacing(12);
+		dialogueBox.setLineSpacing(14);
 		dialogueBox.setSectionSpacing(8);
 		dialogueBox.setTypewriterSpeed(2);
 		
