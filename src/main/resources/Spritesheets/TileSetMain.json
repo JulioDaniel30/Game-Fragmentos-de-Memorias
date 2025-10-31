@@ -14,6 +14,18 @@
             ]
         },
         {
+            "type": "manual",
+            "sprites": [
+                {
+                    "key": "plate",
+                    "x": 96,
+                    "y": 0,
+                    "w": 32,
+                    "h": 32
+                }
+            ]
+        },
+        {
             "type": "grid",
 			"prefix": "stone_v_",
 			"spriteWidth": 32,

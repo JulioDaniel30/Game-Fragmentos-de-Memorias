@@ -68,7 +68,6 @@ public class Door extends EngineDoor {
 
     @Override
     public void setGameObjects(List<GameObject> gameObjects) {
-        // TODO Auto-generated method stub
         super.setGameObjects(gameObjects);
     }
 

@@ -263,6 +263,30 @@
                  "width":32,
                  "x":288,
                  "y":96
+                }, 
+                {
+                 "gid":112,
+                 "height":32,
+                 "id":8,
+                 "name":"Enemy",
+                 "rotation":0,
+                 "type":"Enemy",
+                 "visible":true,
+                 "width":32,
+                 "x":288,
+                 "y":320
+                }, 
+                {
+                 "gid":4,
+                 "height":32,
+                 "id":11,
+                 "name":"plate",
+                 "rotation":0,
+                 "type":"plate",
+                 "visible":true,
+                 "width":32,
+                 "x":254.666666666667,
+                 "y":224
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -271,7 +295,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":8,
+ "nextobjectid":12,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.11.2",

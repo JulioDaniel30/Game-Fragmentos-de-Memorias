@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import com.game.Loaders.AssetsLoader;
 import com.game.Enuns.GameEvent;
+import com.game.GameObjects.Characters.EnemyBase;
 import com.game.GameObjects.Characters.Player;
 import com.game.GameObjects.Collectibles.FragmentOfLight;
 import com.game.GameObjects.Interactables.Door;
@@ -80,8 +81,12 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 	
 	private enum InputMode { GAMEPLAY, UI }
     private InputMode currentInputMode = InputMode.GAMEPLAY;
+
+
+	public static int KillCount = 0;// Contador de inimigos derrotados
 	
 	
+	@SuppressWarnings("static-access")
 	public PlayingState() {
 		super();
 
@@ -180,6 +185,13 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 						Color.YELLOW, 
 						() -> String.valueOf(countFragLight)));
 		
+		uiManager.addElement(
+				new UIText(
+						100, 
+						20, 
+						new Font("arial", Font.BOLD, 12), 
+						Color.WHITE, 
+						() -> "Inimigos derrotados: " + KillCount));
 		this.interactionPrompt = new UIInteractionPrompt();
 		this.uiManager.addElement(this.interactionPrompt);
 	}
@@ -520,6 +532,26 @@ public class PlayingState extends EnginePlayingState implements IMapLoaderListen
 		}else if("door".equals(type)) {
 			GameObject door = new Door(properties, player);
 			addGameObject(door);
+		}else if("Enemy".equals(type)){
+			GameObject enemy = new EnemyBase(properties) {
+				@Override
+				public void initialize(JSONObject properties) {
+					super.initialize(properties);
+					Sprite enemySprite = assets.getSprite("enemy_base");
+					this.setSprite(enemySprite);
+				}
+			};
+			addGameObject(enemy);
+		}else if("plate".equals(type)){
+			GameObject plate = new com.game.GameObjects.Statics.Plate(properties){
+				@Override
+				public void initialize(JSONObject properties) {
+					super.initialize(properties);
+					Sprite plateSprite = assets.getSprite("plate");
+					this.setSprite(plateSprite);
+				}
+			};
+			addGameObject(plate);
 		}
 	}
 

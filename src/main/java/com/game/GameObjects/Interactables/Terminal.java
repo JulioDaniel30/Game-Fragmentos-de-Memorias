@@ -14,6 +14,7 @@ import com.jdstudio.engine.Object.DialogableGameObject;
 import com.jdstudio.engine.Object.GameObject;
 import com.jdstudio.engine.Object.GameObject.CollisionType;
 
+@SuppressWarnings("unused")
 public class Terminal extends DialogableGameObject {
     // Terminal specific properties and methods can be added here
 
@@ -28,7 +29,6 @@ public class Terminal extends DialogableGameObject {
 
     @Override
     public void initialize(JSONObject properties) {
-        // TODO Auto-generated method stub
         super.initialize(properties);
 
         InteractionComponent interactionComponent = new InteractionComponent();
@@ -52,7 +52,6 @@ public class Terminal extends DialogableGameObject {
 
     @Override
     public void render(Graphics g) {
-        // TODO Auto-generated method stub
         super.render(g);
         this.getComponent(InteractionComponent.class).render(g);
     }
